@@ -267,7 +267,7 @@
                     <div class="card-eb p-5 rounded-xl relative">
                         <div class="flex justify-between items-center mb-3">
                             <span class="text-base font-bold">Q1 補給核銷</span>
-                            <span class="text-xs bg-slate-800 text-amber-500 px-3 py-1 rounded-full code-font font-bold">取百位</span>
+                            <span class="textxs bg-slate-800 text-amber-500 px-3 py-1 rounded-full code-font font-bold">取百位</span>
                         </div>
                         <input type="number" id="q1" class="w-full px-4 py-3 rounded-lg text-xl code-font font-bold" placeholder="?">
                     </div>
@@ -394,6 +394,7 @@
 
     <script>
         let isUnlocked = false; 
+        let isHintUnlocked = false; // 新增：追蹤情報提示是否已解鎖
         const TERMINAL_PASSWORD = "halo";
 
         function checkHintPassword() {
@@ -406,21 +407,27 @@
             const dateCode = mm + dd;
 
             if (input === dateCode) {
-                document.getElementById('hint-auth-section').classList.add('hidden');
-                document.getElementById('hint-cancel-btn').classList.add('hidden');
-                document.getElementById('hint-content-section').classList.remove('hidden');
-                
-                if (isUnlocked) {
-                    document.getElementById('lock-hint').classList.add('hidden');
-                    document.getElementById('mission-hints').classList.remove('hidden');
-                } else {
-                    document.getElementById('lock-hint').classList.remove('hidden');
-                    document.getElementById('mission-hints').classList.add('hidden');
-                }
+                isHintUnlocked = true; // 解鎖成功，記憶狀態
+                renderHintContent();
             } else {
                 error.classList.remove('hidden');
                 document.getElementById('hintPasswordInput').value = "";
                 setTimeout(() => error.classList.add('hidden'), 2000);
+            }
+        }
+
+        // 負責根據狀態切換提示內容的顯示
+        function renderHintContent() {
+            document.getElementById('hint-auth-section').classList.add('hidden');
+            document.getElementById('hint-cancel-btn').classList.add('hidden');
+            document.getElementById('hint-content-section').classList.remove('hidden');
+            
+            if (isUnlocked) {
+                document.getElementById('lock-hint').classList.add('hidden');
+                document.getElementById('mission-hints').classList.remove('hidden');
+            } else {
+                document.getElementById('lock-hint').classList.remove('hidden');
+                document.getElementById('mission-hints').classList.add('hidden');
             }
         }
 
@@ -512,11 +519,18 @@
         }
 
         function showMissionHint() {
-            document.getElementById('hint-auth-section').classList.remove('hidden');
-            document.getElementById('hint-cancel-btn').classList.remove('hidden');
-            document.getElementById('hint-content-section').classList.add('hidden');
-            document.getElementById('hintPasswordInput').value = "";
             document.getElementById('hint-modal').classList.remove('hidden');
+            
+            // 如果已經解鎖過，直接顯示內容
+            if (isHintUnlocked) {
+                renderHintContent();
+            } else {
+                // 否則顯示驗證介面
+                document.getElementById('hint-auth-section').classList.remove('hidden');
+                document.getElementById('hint-cancel-btn').classList.remove('hidden');
+                document.getElementById('hint-content-section').classList.add('hidden');
+                document.getElementById('hintPasswordInput').value = "";
+            }
         }
 
         function closeHint() {
